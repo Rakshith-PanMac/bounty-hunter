@@ -35,3 +35,4 @@ Every implementation must follow this linear path:
 
 - **Architecture Docs**: Must explain the "Why" and "How". Use diagrams or clear step-by-step flows.
 - **README**: Must be a professional, high-fidelity representation of the project (inspired by `career-ops`).
+       
