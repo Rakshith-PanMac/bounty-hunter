@@ -21,6 +21,7 @@ class ApplicationRead(ApplicationBase):
     id: int
     date_applied: datetime
     evidence_path: Optional[str] = None
+    match_score: Optional[int] = None
 
     class Config:
         from_attributes = True

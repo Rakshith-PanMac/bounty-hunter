@@ -350,7 +350,7 @@
                                 <p class="text-[10px] text-zinc-500 mb-2 uppercase font-bold tracking-widest">Captured Evidence</p>
                                 <div class="relative group/img">
                                     <img :src="`http://localhost:8001${app.evidence_path}`" class="w-full h-36 object-cover rounded-xl border border-zinc-800 cursor-zoom-in transition duration-500 group-hover/img:scale-[1.02]" @click="openImage(app.evidence_path)">
-                                    <div class="absolute inset-0 bg-zinc-900/60 opacity-0 group-hover/img:opacity-100 transition flex items-center justify-center rounded-xl">
+                                    <div class="absolute inset-0 pointer-events-none bg-zinc-900/60 opacity-0 group-hover/img:opacity-100 transition flex items-center justify-center rounded-xl">
                                         <i class="fas fa-expand text-white text-lg"></i>
                                     </div>
                                 </div>
@@ -426,7 +426,7 @@
 
                 const fetchApps = async () => {
                     try {
-                        const res = await axios.get(`${API_BASE}/applications`);
+                        const res = await axios.get(`${API_BASE}/applications/`);
                         apps.value = res.data;
                     } catch (e) { console.error(e); }
                 };

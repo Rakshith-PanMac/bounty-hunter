@@ -26,10 +26,6 @@ app.add_middleware(
 # Mount static files for evidence capture
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# Mount the frontend as the root
-# This ensures that http://localhost:8000 serves index.html
-app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
-
 # Include routers
 app.include_router(profile.router)
 app.include_router(applications.router)
@@ -37,9 +33,9 @@ app.include_router(filters.router)
 app.include_router(agents.router)
 
 
-@app.get("/")
-async def root():
-    return {"message": "Welcome to BountyHunter API. Visit /docs for documentation."}
+# Mount the frontend as the root. This must come AFTER all API routers:
+# a mount at "/" matches every path, so anything registered after it is unreachable.
+app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
 
 if __name__ == "__main__":
     import uvicorn
