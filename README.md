@@ -1,7 +1,9 @@
 # 🎯 BountyHunter: The Agentic Career OS
 **A high-performance, reference implementation for autonomous professional trajectory management.**
 
-![BountyHunter Logo](static/logo.svg)
+<p align="center">
+  <img src="static/logo-wordmark.svg" alt="BountyHunter - The Agentic Career OS" width="520">
+</p>
 
 [![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white)](https://www.docker.com/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
@@ -61,10 +63,10 @@ bounty-hunter/
 │   ├── core/               # System configuration and environment management
 │   ├── models/             # SQLAlchemy ACID-compliant data models
 │   └── schemas/            # Pydantic data validation layers
-├── docs/                   # Technical Wiki and Governance Models
-│   └── wiki/               # Fundamentals, Backend, Infra, and Agentic Systems
-├── frontend/               # Executive Suite Dashboard (Vue.js + Tailwind)
-└── static/                 # Evidence store and brand assets
+├── frontend/               # Executive Suite Dashboard (Vue 3 + Tailwind, served by the API)
+├── static/                 # Evidence store and brand assets (logo.svg, logo-wordmark.svg)
+├── GOVERNANCE.md           # The delivery workflow every change follows
+└── docker-compose.yml      # PostgreSQL + API stack
 ```
 
 ---
@@ -73,7 +75,7 @@ bounty-hunter/
 
 ### 1. Prerequisites
 - Docker & Docker Compose
-- A [SerpApi Key](https://serpapi.com/)
+- A [SerpApi Key](https://serpapi.com/) (the Hunter cannot source jobs without one)
 
 ### 2. Launch Sequence
 ```bash
@@ -83,17 +85,66 @@ cd bounty-hunter
 
 # Configure the environment
 cp .env.example .env
-# Edit .env and insert your SERPAPI_KEY
+# Edit .env: set your database credentials and SERPAPI_KEY
 
 # Deploy the system
-docker-compose up --build -d
+docker compose up --build -d
 ```
 
+Then open **http://localhost:8001**. The API serves the dashboard itself, so there is nothing to open from disk. Interactive API docs live at **http://localhost:8001/docs**.
+
+> **Port note:** `docker-compose.yml` maps container port 8000 to host port **8001**, and the dashboard calls the API at `http://localhost:8001`. If you change the port mapping, update `API_BASE` in `frontend/index.html`.
+
 ### 3. Operational Flow
-1. **Identity Sync**: Open `frontend/index.html` and define your **Professional Persona**.
-2. **Parameter Set**: Configure your **Strategic Keywords** and **Target Geographies**.
-3. **Deploy Hunter**: Initiate the sourcing cycle.
-4. **Review Bounties**: Analyze high-match roles and their visual evidence.
+1. **Identity Sync**: Open the **Identity** tab and define your **Professional Persona**.
+2. **Parameter Set**: In **Parameters**, configure your **Strategic Keywords** and **Target Geographies**.
+3. **Deploy Hunter**: On **Portfolio**, click **Initiate Hunt**. Results are written in the background and the page refreshes itself for about a minute.
+4. **Review Bounties**: Analyze high-match roles, their match score, and their visual evidence. **History** lists everything that has moved past the Wishlist.
+
+---
+
+## 🔌 API Reference
+All routes are served from the same origin as the dashboard. Note the trailing slashes on collection routes.
+
+| Method | Route | Purpose |
+| :--- | :--- | :--- |
+| `GET` / `POST` | `/profile/` | Read or create/update your professional profile (`404` until first saved) |
+| `GET` / `POST` | `/filters/` | Read (auto-created with defaults) or update hunting parameters |
+| `GET` / `POST` | `/applications/` | List or create tracked opportunities (includes `match_score`) |
+| `DELETE` | `/applications/{id}` | Remove an opportunity |
+| `POST` | `/agents/hunter/search` | Start a background sourcing cycle |
+| `POST` | `/agents/executive/orchestrate?requirement=...` | Run the Enterprise Loop for a requirement |
+| `POST` | `/agents/verifier/audit` | Audit a proposed change against the project manifest |
+
+> **Routing rule:** the dashboard is mounted at `/` in `app/main.py`, and that mount matches every path. It **must be registered after** all API routers, or the API becomes unreachable (`404`/`405`).
+
+---
+
+## 🧑‍💻 Local Development (without Docker)
+You still need a PostgreSQL instance, configured through the `DB_*` variables in `.env`.
+```bash
+python -m venv venv && source venv/bin/activate
+pip install -r requirements.txt
+playwright install chromium        # used by Evidence Capture
+uvicorn app.main:app --reload --port 8001
+pytest                             # run the test suite
+```
+
+---
+
+## 🛠️ Troubleshooting
+| Symptom | Likely cause |
+| :--- | :--- |
+| Toasts say "Method Not Allowed" / empty portfolio | API routes are shadowed by the `/` mount; see the routing rule above |
+| Dashboard loads but cannot save | The API is not reachable at `http://localhost:8001` (check the port mapping) |
+| Hunt starts but no jobs appear | Missing or invalid `SERPAPI_KEY`; check the app container logs |
+| `GET /profile/` returns 404 on a fresh install | Expected; save your profile in the Identity tab first |
+
+---
+
+## 🔐 Security
+- Never commit real secrets. `.env` holds credentials and API keys; keep it out of version control and commit only `.env.example`.
+- If a real key was ever committed, rotate it: removing the file does not erase it from git history.
 
 ---
 
@@ -101,11 +152,10 @@ docker-compose up --build -d
 BountyHunter is designed to be resource-efficient.
 - **SerpApi**: Use the free tier for initial testing (100 searches/month).
 - **Docker**: The system uses a lightweight PostgreSQL image to minimize RAM usage.
-- **Localhost**: The entire suite runs locally, ensuring your professional data never leaves your machine except for the encrypted API calls to search providers.
+- **Localhost**: The entire suite runs locally, ensuring your professional data never leaves your machine except for the API calls to search providers.
 
 ---
 
 ## 🎓 Learning Center
-This project serves as a reference implementation for **Agentic Governance**. Explore the `docs/` folder for a deep dive into:
-- **TECHNICAL_GUIDE.md**: Ground-up explanation of MVC and Agentic Loops.
-- **Governance Model**: How the Executive/Council hierarchy prevents AI hallucinations.
+This project serves as a reference implementation for **Agentic Governance**.
+- **[GOVERNANCE.md](GOVERNANCE.md)**: The delivery workflow and "Zero Trust" policy every change must pass, including how the Executive/Council hierarchy guards against hallucinated results.
