@@ -48,8 +48,7 @@ graph LR
 | **The Hunter** | Sourcing Specialist | Real-time Web-Scale Sourcing & Evidence Capture | High-Fidelity Leads |
 | **The Adversary** | Chaos Engineer | Adversarial API Testing & Edge-Case Discovery | System Rigor |
 | **The Refiner** | Optimization Expert | Vulnerability Patching & Performance Tuning | Hardened Infrastructure |
-| **The Designer** | Brand Identity | UI/UX Audit & Brand Consistency Enforcement | Executive Aesthetics |
-| **Designer Intel** | UI Consultant | Proactive UI/UX Improvement Suggestions | Continuous Evolution |
+| **The Verifier** | Governance Auditor | Adversarial audit of every change against the Project Manifest | Verified Delivery |
 
 ---
 
@@ -93,7 +92,7 @@ docker compose up --build -d
 
 Then open **http://localhost:8001**. The API serves the dashboard itself, so there is nothing to open from disk. Interactive API docs live at **http://localhost:8001/docs**.
 
-> **Port note:** `docker-compose.yml` maps container port 8000 to host port **8001**, and the dashboard calls the API at `http://localhost:8001`. If you change the port mapping, update `API_BASE` in `frontend/index.html`.
+> **Port note:** `docker-compose.yml` maps container port 8000 to host port **8001**. The dashboard calls the API on the same origin that served it, so any host or port mapping works.
 
 ### 3. Operational Flow
 1. **Identity Sync**: Open the **Identity** tab and define your **Professional Persona**.
@@ -136,15 +135,15 @@ pytest                             # run the test suite
 | Symptom | Likely cause |
 | :--- | :--- |
 | Toasts say "Method Not Allowed" / empty portfolio | API routes are shadowed by the `/` mount; see the routing rule above |
-| Dashboard loads but cannot save | The API is not reachable at `http://localhost:8001` (check the port mapping) |
+| Dashboard loads but cannot save | The API is not reachable from your browser (check the port mapping and container logs) |
 | Hunt starts but no jobs appear | Missing or invalid `SERPAPI_KEY`; check the app container logs |
 | `GET /profile/` returns 404 on a fresh install | Expected; save your profile in the Identity tab first |
 
 ---
 
 ## 🔐 Security
-- Never commit real secrets. `.env` holds credentials and API keys; keep it out of version control and commit only `.env.example`.
-- If a real key was ever committed, rotate it: removing the file does not erase it from git history.
+- Never commit real secrets. `.env` holds credentials and API keys; it is git-ignored, so commit only `.env.example`.
+- `.env` was tracked in earlier commits. Treat any real key that was ever in it as exposed and **rotate it**: untracking the file does not erase it from git history.
 
 ---
 

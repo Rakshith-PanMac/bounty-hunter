@@ -1,0 +1,15 @@
+# Secrets - commit only .env.example
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+.pytest_cache/
+
+# Local databases / editor
+*.db
+.idea/
+.vscode/
+.DS_Store
